@@ -1,59 +1,60 @@
 @echo off
 
-title É¾³ý´ËµçÄÔÏµÍ³¿ì½ÝÎÄ¼þ¼Ð - ¹ÜÀíÔ±Ä£Ê½
+title åˆ é™¤æ­¤ç”µè„‘ç³»ç»Ÿå¿«æ·æ–‡ä»¶å¤¹ - ç®¡ç†å‘˜æ¨¡å¼
 color 0A
 
 echo ==============================================
-echo  ¾¯¸æ£º¸Ã½Å±¾½öÉ¾³ý"´ËµçÄÔ"ÖÐµÄ¿ì½ÝÈë¿Ú£¬²»É¾³ýÊµ¼ÊÎÄ¼þ£¡
+echo  è­¦å‘Šï¼šè¯¥è„šæœ¬ä»…åˆ é™¤"æ­¤ç”µè„‘"ä¸­çš„å¿«æ·å…¥å£ï¼Œä¸åˆ é™¤å®žé™…æ–‡ä»¶ï¼
 echo.
-echo  °´ÈÎÒâ¼ü¿ªÊ¼Ö´ÐÐ£¨Ö±½Ó¹Ø±Õ´°¿Ú¿ÉÖÕÖ¹²Ù×÷£©
+echo  æŒ‰ä»»æ„é”®å¼€å§‹æ‰§è¡Œï¼ˆç›´æŽ¥å…³é—­çª—å£å¯ç»ˆæ­¢æ“ä½œï¼‰
 echo ==============================================
 pause > nul
 
 echo.
-echo ÕýÔÚÉ¾³ý×¢²á±íÖÐµÄ¿ì½ÝÈë¿ÚÏî...
+echo æ­£åœ¨åˆ é™¤æ³¨å†Œè¡¨ä¸­çš„å¿«æ·å…¥å£é¡¹...
 
-:: 1. É¾³ýµ±Ç°ÓÃ»§×¢²á±íÖÐµÄ¶ÔÓ¦Ïî£¨ÎÞÐè¹ÜÀíÔ±Ò²¿É²¿·ÖÉúÐ§£©
-:: 3D¶ÔÏó
+:: 1. åˆ é™¤å½“å‰ç”¨æˆ·æ³¨å†Œè¡¨ä¸­çš„å¯¹åº”é¡¹ï¼ˆæ— éœ€ç®¡ç†å‘˜ä¹Ÿå¯éƒ¨åˆ†ç”Ÿæ•ˆï¼‰
+:: 3Då¯¹è±¡
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" /f > nul 2>&1
-:: ÊÓÆµ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: è§†é¢‘ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{f86fa3ab-70d2-4fc7-9c99-fcbf05467f3a}" /f > nul 2>&1
-:: Í¼Æ¬
+:: å›¾ç‰‡
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{24AD3AD4-A569-4530-98E1-AB02F9417AA8}" /f > nul 2>&1
-:: ÎÄµµ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: æ–‡æ¡£ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{d3162b92-9365-467a-956b-92703aca08af}" /f > nul 2>&1
-:: ÒôÀÖ
+:: éŸ³ä¹
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{3DFDF296-DBEC-4FB4-81D1-6A3438BCF4DE}" /f > nul 2>&1
-:: ÏÂÔØ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: ä¸‹è½½ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{088e3905-0323-4b02-9826-5d99428e115f}" /f > nul 2>&1
-:: ×ÀÃæ
+:: æ¡Œé¢
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}" /f > nul 2>&1
 
-:: 2. É¾³ý±¾µØ»úÆ÷×¢²á±íÖÐµÄ¶ÔÓ¦Ïî£¨ÐèÒª¹ÜÀíÔ±È¨ÏÞ£¬È·±£ÍêÈ«É¾³ý£©
-:: 3D¶ÔÏó
+:: 2. åˆ é™¤æœ¬åœ°æœºå™¨æ³¨å†Œè¡¨ä¸­çš„å¯¹åº”é¡¹ï¼ˆéœ€è¦ç®¡ç†å‘˜æƒé™ï¼Œç¡®ä¿å®Œå…¨åˆ é™¤ï¼‰
+:: 3Då¯¹è±¡
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" /f > nul 2>&1
-:: ÊÓÆµ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: è§†é¢‘ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{f86fa3ab-70d2-4fc7-9c99-fcbf05467f3a}" /f > nul 2>&1
-:: Í¼Æ¬
+:: å›¾ç‰‡
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{24AD3AD4-A569-4530-98E1-AB02F9417AA8}" /f > nul 2>&1
-:: ÎÄµµ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: æ–‡æ¡£ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{d3162b92-9365-467a-956b-92703aca08af}" /f > nul 2>&1
-:: ÒôÀÖ
+:: éŸ³ä¹
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{3DFDF296-DBEC-4FB4-81D1-6A3438BCF4DE}" /f > nul 2>&1
-:: ÏÂÔØ£¨ÄãÐÞ¸ÄºóµÄCLSID£©
+:: ä¸‹è½½ï¼ˆä½ ä¿®æ”¹åŽçš„CLSIDï¼‰
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{088e3905-0323-4b02-9826-5d99428e115f}" /f > nul 2>&1
-:: ×ÀÃæ
+:: æ¡Œé¢
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}" /f > nul 2>&1
 
-echo ×¢²á±íÏîÉ¾³ýÍê³É£¬ÕýÔÚÖØÆô×ÊÔ´¹ÜÀíÆ÷Ê¹ÐÞ¸ÄÉúÐ§...
-:: ÖÕÖ¹µ±Ç°×ÊÔ´¹ÜÀíÆ÷½ø³Ì²¢ÖØÆô
+echo æ³¨å†Œè¡¨é¡¹åˆ é™¤å®Œæˆï¼Œæ­£åœ¨é‡å¯èµ„æºç®¡ç†å™¨ä½¿ä¿®æ”¹ç”Ÿæ•ˆ...
+:: ç»ˆæ­¢å½“å‰èµ„æºç®¡ç†å™¨è¿›ç¨‹å¹¶é‡å¯
 taskkill /f /im explorer.exe > nul 2>&1
 start explorer.exe
 
 echo.
 echo ==============================================
-echo  ²Ù×÷Ö´ÐÐÍê³É£¡
-echo  1. ´ò¿ª"´ËµçÄÔ"¼´¿É²é¿´¿ì½ÝÎÄ¼þ¼ÐÊÇ·ñÒÑÏûÊ§
-echo  2. Êµ¼ÊÎÄ¼þÈÔ±£´æÔÚ C:\Users\ÄãµÄÓÃ»§Ãû\ Ä¿Â¼ÏÂ
+echo  æ“ä½œæ‰§è¡Œå®Œæˆï¼
+echo  1. æ‰“å¼€"æ­¤ç”µè„‘"å³å¯æŸ¥çœ‹å¿«æ·æ–‡ä»¶å¤¹æ˜¯å¦å·²æ¶ˆå¤±
+echo  2. å®žé™…æ–‡ä»¶ä»ä¿å­˜åœ¨ C:\Users\ä½ çš„ç”¨æˆ·å\ ç›®å½•ä¸‹
 echo ==============================================
+
 pause > nul
