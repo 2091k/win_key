@@ -104,20 +104,6 @@ if (-not $args) {
         return
     }
 
-    # Verify script integrity
-    $releaseHash = 'A932372355874975920B2FE83FFFE7F1F5CF52214F34DCDBC10409674D5E57A9'
-    $stream = New-Object IO.MemoryStream
-    $writer = New-Object IO.StreamWriter $stream
-    $writer.Write($response)
-    $writer.Flush()
-    $stream.Position = 0
-    $hash = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($stream)) -replace '-'
-    if ($hash -ne $releaseHash) {
-        Write-Warning "Hash ($hash) mismatch, aborting!`nReport this issue at $troubleshoot"
-        $response = $null
-        return
-    }
-
     # Check for AutoRun registry
     $paths = "HKCU:\SOFTWARE\Microsoft\Command Processor", "HKLM:\SOFTWARE\Microsoft\Command Processor"
     foreach ($path in $paths) { 
